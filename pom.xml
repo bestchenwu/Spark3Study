@@ -37,6 +37,7 @@
 		<scala.version>2.12.7</scala.version>
 		<scala-libaray.version>2.12</scala-libaray.version>
 		<junit.version>4.12</junit.version>
+        <scala-test.version>3.2.2</scala-test.version>
 	</properties>
 
 		<dependencies>
@@ -157,6 +158,12 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>42.2.18</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest_${scala-libaray.version}</artifactId>
+                <version>${scala-test.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
 	
