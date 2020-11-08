@@ -170,23 +170,7 @@
 	<build>
 		<pluginManagement>
 			<plugins>
-                <!-- 引入maven scala插件 -->
-                <!--<plugin>-->
-					<!--<groupId>net.alchim31.maven</groupId>-->
-					<!--<artifactId>scala-maven-plugin</artifactId>-->
-					<!--<version>4.4.0</version>-->
-					<!--<executions>-->
-						<!--<execution>-->
-							<!--<id>scala-compile-first</id>-->
-							<!--<phase>process-resources</phase>-->
-							<!--<goals>-->
-								<!--<goal>add-source</goal>-->
-								<!--<goal>compile</goal>-->
-							<!--</goals>-->
-						<!--</execution>-->
-					<!--</executions>-->
-				<!--</plugin>-->
-				<plugin>
+                <plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
@@ -199,36 +183,111 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<!--<plugin>-->
-				<!--<groupId>net.alchim31.maven</groupId>-->
-				<!--<artifactId>scala-maven-plugin</artifactId>-->
-			<!--</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
-			<!-- 
 			 <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
-                 <executions>
+                <executions>
+                    <!-- Run scala compiler in the process-resources phase, so that dependencies on
+                         scala classes can be resolved later in the (Java) compile phase -->
                     <execution>
-                        <id>compile-scala</id>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>                        
                         <goals>
-                            <goal>add-source</goal>
                             <goal>compile</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile-scala</id>
+                        </execution>
+ 
+                        <!-- Run scala compiler in the process-test-resources phase, so that dependencies on
+                             scala classes can be resolved later in the (Java) test-compile phase -->                    
+                        <execution>
+                        <id>scala-test-compile</id>
+                        <phase>process-test-resources</phase>
                         <goals>
-                            <goal>add-source</goal>
                             <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-			 -->
+             
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <!-- Add src/main/scala to source path of Eclipse -->
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                       
+                    <!-- Add src/test/scala to test source path of Eclipse -->
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/test/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+             
+            <!-- to generate Eclipse artifacts for projects mixing Scala and Java -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <configuration>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                    <projectnatures>
+                        <projectnature>org.scala-ide.sdt.core.scalanature</projectnature>
+                        <projectnature>org.eclipse.jdt.core.javanature</projectnature>
+                    </projectnatures>
+                    <buildcommands>
+                        <buildcommand>org.scala-ide.sdt.core.scalabuilder</buildcommand>
+                    </buildcommands>
+                    <classpathContainers>
+                        <classpathContainer>org.scala-ide.sdt.launching.SCALA_CONTAINER</classpathContainer>
+                        <classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
+                    </classpathContainers>
+                    <excludes>
+                        <!-- in Eclipse, use scala-library, scala-compiler from the SCALA_CONTAINER rather than POM <dependency> -->
+                        <exclude>org.scala-lang:scala-library</exclude>
+                        <exclude>org.scala-lang:scala-compiler</exclude>
+                    </excludes>
+                    <sourceIncludes>
+                        <sourceInclude>**/*.scala</sourceInclude>
+                        <sourceInclude>**/*.java</sourceInclude>
+                    </sourceIncludes>
+                </configuration>
+            </plugin>
+             
+            <!-- When run tests in the test phase, include .java and .scala source files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*.java</include>
+                        <include>**/*.scala</include>
+                    </includes>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
@@ -239,53 +298,6 @@
 				</configuration>
 				<!-- other settings-->
 			</plugin>
-			<!--<plugin>-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-source-plugin</artifactId>-->
-				<!--<version>${build.plugins.plugin.version}</version>-->
-				<!--<configuration>  -->
-					<!--<attach>true</attach>  -->
-				<!--</configuration>  -->
-				<!--<executions>  -->
-					<!--<execution>  -->
-						<!--<phase>compile</phase>  -->
-						<!--<goals>  -->
-							<!--<goal>jar</goal>  -->
-						<!--</goals>  -->
-					<!--</execution>  -->
-				<!--</executions>-->
-			<!--</plugin>-->
-			<!--<plugin>-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-jar-plugin</artifactId>-->
-				<!--<configuration>-->
-				  <!--<archive>-->
-					<!--<manifest>-->
-
-					<!--</manifest>-->
-				  <!--</archive>-->
-				<!--</configuration>-->
-			 <!--</plugin>-->
-
-			 <!--<plugin>-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-dependency-plugin</artifactId>-->
-				<!--<executions>-->
-				  <!--<execution>-->
-					<!--<id>copy</id>-->
-					<!--<phase>package</phase>-->
-					<!--<goals>-->
-					  <!--<goal>copy-dependencies</goal>-->
-					<!--</goals>-->
-					<!--<configuration>-->
-					  <!--&lt;!&ndash; ${project.build.directory} 构建目录，缺省为target &ndash;&gt;-->
-					  <!--<outputDirectory>-->
-						<!--${project.build.directory}/lib-->
-					  <!--</outputDirectory>-->
-					<!--</configuration>-->
-				  <!--</execution>-->
-				<!--</executions>-->
-			 <!--</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -317,16 +329,5 @@
 	</build>
 	<repositories>
 		<!--添加aliyun maven地址 -->
-		<repository>
-			<id>maven-ali</id>
-			<url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-		</repository>
 	</repositories>
 </project>
