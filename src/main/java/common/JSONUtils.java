@@ -1,7 +1,6 @@
 package common;
 
 import com.alibaba.fastjson.JSON;
-import scala.AnyVal;
 
 /**
  * JSON工具类
